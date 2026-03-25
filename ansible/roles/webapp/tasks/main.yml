@@ -1,0 +1,56 @@
+---
+- name: Ensure webapp deployment directory is present
+  ansible.builtin.file:
+    path: "{{ webapp_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Ensure webapp code is deployed
+  ansible.builtin.git:
+    repo: "{{ webapp_repo_url }}"
+    dest: "{{ webapp_dir }}"
+    version: "{{ webapp_version }}"
+
+- name: Ensure Python 3.12 packaging tools are installed
+  ansible.builtin.package:
+    name:
+      - python3.12-pip
+      - python3.12-setuptools
+    state: present
+
+- name: Ensure webapp virtual environment exists
+  ansible.builtin.command:
+    cmd: python3.12 -m venv {{ webapp_venv_dir }}
+    creates: "{{ webapp_venv_dir }}/bin/activate"
+
+- name: Ensure webapp Python dependencies are installed
+  ansible.builtin.pip:
+    requirements: "{{ webapp_dir }}/requirements.txt"
+    virtualenv: "{{ webapp_venv_dir }}"
+
+- name: Deploy webapp systemd unit file
+  ansible.builtin.template:
+    src: mc-panel.service.j2
+    dest: /etc/systemd/system/{{ webapp_service_name }}.service
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Ensure SELinux context rule exists for webapp venv executables
+  community.general.sefcontext:
+    target: '/srv/webapp/\.venv/bin(/.*)?'
+    setype: bin_t
+    state: present
+
+- name: Restore SELinux context on webapp venv executables
+  ansible.builtin.command:
+    cmd: restorecon -Rv {{ webapp_venv_dir }}/bin
+
+- name: Ensure the webapp service is enabled and running
+  ansible.builtin.systemd_service:
+    name: "{{ webapp_service_name }}"
+    daemon_reload: true
+    enabled: true
+    state: started
