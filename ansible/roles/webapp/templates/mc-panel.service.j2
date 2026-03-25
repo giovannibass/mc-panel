@@ -1,0 +1,14 @@
+[Unit]
+Description=mc-panel Django app
+After=network.target
+
+[Service]
+User={{ webapp_user }}
+Group={{ webapp_group }}
+WorkingDirectory={{ webapp_dir }}
+Environment="DJANGO_SETTINGS_MODULE={{ webapp_django_settings_module }}"
+ExecStart={{ webapp_venv_dir}}/bin/gunicorn {{ webapp_wsgi_module }} --bind {{ webapp_bind_address }}
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

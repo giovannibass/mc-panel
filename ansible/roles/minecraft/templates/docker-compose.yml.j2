@@ -1,0 +1,12 @@
+services:
+  mc_java:
+    image: "{{ minecraft_image }}"
+    container_name: "{{ minecraft_container_name }}"
+    ports:
+      - "{{ minecraft_bind_address }}:25565:25565"
+    environment:
+      EULA: "TRUE"
+      MEMORY: "{{ minecraft_memory }}"
+    volumes:
+      - "{{ minecraft_data_dir }}:/data:Z"
+    restart: unless-stopped

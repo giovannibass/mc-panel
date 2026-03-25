@@ -1,0 +1,11 @@
+---
+webapp_dir: /srv/webapp
+webapp_repo_url: https://github.com/giovannibass/mc-panel.git
+webapp_version: main
+webapp_user: plato
+webapp_group: plato
+webapp_venv_dir: /srv/webapp/.venv
+webapp_service_name: mc-panel
+webapp_bind_address: 127.0.0.1:8000
+webapp_django_settings_module: mcpanel.settings
+webapp_wsgi_module: mcpanel.wsgi:application

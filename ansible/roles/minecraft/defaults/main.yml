@@ -1,0 +1,8 @@
+---
+minecraft_compose_dir: /srv//minecraft
+minecraft_image: itzg/minecraft-server
+minecraft_container_name: mc-java
+minecraft_bind_address: 127.0.0.1
+minecraft_port: 25565
+minecraft_memory: 2G
+minecraft_data_dir: /srv/minecraft/java-data
