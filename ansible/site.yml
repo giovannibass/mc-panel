@@ -1,0 +1,9 @@
+---
+- name: Configure Minecraft server VPS
+  hosts: mcservers
+  become: true
+  roles:
+    - common
+    - docker
+    - minecraft
+    - webapp
