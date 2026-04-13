@@ -1,0 +1,36 @@
+---
+- name: Ensure monitoring directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  loop:
+    - "{{ monitoring_dest_dir }}"
+    - "{{ monitoring_dest_dir }}/prometheus"
+
+- name: Deploy Prometheus configuration
+  ansible.builtin.template:
+    src: prometheus.yml.j2
+    dest: "{{ prometheus_dest }}"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Deploy monitoring Compose file
+  ansible.builtin.template:
+    src: compose.monitoring.yml.j2
+    dest: "{{ compose_dest }}"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Deploy monitoring stack with Docker Compose
+  community.docker.docker_compose_v2:
+    project_src: "{{ monitoring_dest_dir }}"
+    files:
+      - compose.monitoring.yml
+    state: present
+    wait: true
+    wait_timeout: 120

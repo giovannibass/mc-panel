@@ -1,0 +1,5 @@
+---
+monitoring_dest_dir: "/srv/webapp/monitoring"
+
+prometheus_dest: "{{ monitoring_dest_dir }}/prometheus/prometheus.yml"
+compose_dest: "{{ monitoring_dest_dir }}/compose.monitoring.yml"
