@@ -1,0 +1,98 @@
+---
+- name: Install security packages
+  ansible.builtin.dnf:
+    name:
+      - firewalld
+      - fail2ban
+      - policycoreutils-python-utils
+      - python3-libselinux
+    state: present
+
+- name: Ensure firewalld is enabled and running
+  ansible.builtin.service:
+    name: firewalld
+    enabled: true
+    state: started
+
+- name: Ensure fail2ban is enabled and running
+  ansible.builtin.service:
+    name: fail2ban
+    enabled: true
+    state: started
+
+- name: Deploy SSH hardening config
+  ansible.builtin.copy:
+    src: 99-hardening.conf
+    dest: /etc/ssh/sshd_config.d/99-hardening.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: reload sshd
+
+- name: Deploy fail2ban sshd jail
+  ansible.builtin.copy:
+    src: sshd.local
+    dest: /etc/fail2ban/jail.d/sshd.local
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart fail2ban
+
+- name: Allow SSH through firewall
+  ansible.posix.firewalld:
+    service: ssh
+    permanent: true
+    immediate: true
+    state: enabled
+
+- name: Allows HTTPS through firewall
+  ansible.posix.firewalld:
+    service: https
+    permanent: true
+    immediate: true
+    state: enabled
+
+- name: Allow Minecraft Java port through firewall
+  ansible.posix.firewalld:
+    port: 25565/tcp
+    permanent: true
+    immediate: true
+    state: enabled
+
+- name: Allow Nginx to connect to backend ports through SELinux
+  ansible.posix.seboolean:
+    name: httpd_can_network_connect
+    state: true
+    persistent: true
+
+- name: Create Certbot pre-renewal hook directory
+  ansible.builtin.file:
+    path: /etc/letsencrypt/renewal-hooks/pre
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Create Cerbot post-renewal hook directory
+  ansible.builtin.file:
+    path: /etc/letsencrypt/renewal-hooks/post
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Deploy Cerbot pre-renewal Nginx stop hook
+  ansible.builtin.copy:
+    src: stop-nginx.sh
+    dest: /etc/letsencrypt/renewal-hooks/pre/stop-nginx.sh
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Deploy Certbot post-renewal Nginx start hook
+  ansible.builtin.copy:
+    src: start-nginx.sh
+    dest: /etc/letsencrypt/renewal-hooks/post/start-nginx.sh
+    owner: root
+    group: root
+    mode: '0755'

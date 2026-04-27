@@ -7,3 +7,5 @@
     - docker
     - minecraft
     - webapp
+    - monitoring
+    - security

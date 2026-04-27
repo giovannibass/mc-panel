@@ -12,6 +12,7 @@
     repo: "{{ webapp_repo_url }}"
     dest: "{{ webapp_dir }}"
     version: "{{ webapp_version }}"
+    force: yes
 
 - name: Ensure Python 3.12 packaging tools are installed
   ansible.builtin.package:
