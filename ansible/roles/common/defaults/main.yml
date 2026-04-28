@@ -5,3 +5,5 @@ common_packages:
   - vim
   - firewalld
   - tmux
+
+common_update_all_packages: false

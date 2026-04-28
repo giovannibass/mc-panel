@@ -8,6 +8,9 @@
   ansible.builtin.package:
     name: "*"
     state: latest
+  when: common_update_all_packages | bool
+  tags:
+    - system_update
 
 - name: Make sure firewalld is enabled and runs
   ansible.builtin.systemd_service:

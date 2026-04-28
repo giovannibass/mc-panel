@@ -8,7 +8,7 @@ Group={{ webapp_group }}
 WorkingDirectory={{ webapp_dir }}
 EnvironmentFile=/etc/mc-panel.env
 Environment="DJANGO_SETTINGS_MODULE={{ webapp_django_settings_module }}"
-ExecStart={{ webapp_venv_dir}}/bin/gunicorn {{ webapp_wsgi_module }} --bind {{ webapp_bind_address }}
+ExecStart={{ webapp_venv_dir}}/bin/gunicorn {{ webapp_wsgi_module }} --bind {{ webapp_bind_address }} --no-control-socket
 Restart=always
 
 [Install]

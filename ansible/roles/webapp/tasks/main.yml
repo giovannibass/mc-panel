@@ -31,6 +31,17 @@
     requirements: "{{ webapp_dir }}/requirements.txt"
     virtualenv: "{{ webapp_venv_dir }}"
 
+- name: Deploy mc-panel environment file
+  ansible.builtin.copy:
+    dest: /etc/mc-panel.env
+    owner: root
+    group: root
+    mode: "0600"
+    content: |
+      DJANGO_SECRET_KEY={{ django_secret_key }}
+  no_log: true
+  notify: Restart mc-panel
+
 - name: Deploy webapp systemd unit file
   ansible.builtin.template:
     src: mc-panel.service.j2
@@ -38,6 +49,7 @@
     owner: root
     group: root
     mode: "0644"
+  notify: Restart mc-panel
 
 - name: Ensure SELinux context rule exists for webapp venv executables
   community.general.sefcontext:
