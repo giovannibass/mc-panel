@@ -224,3 +224,4 @@ ansible/collections/ansible_collections/
 # Local Ansible secrets
 ansible/group_vars/**/vault.yml
 ansible/.secrets/
+ansible/inventory.ini
