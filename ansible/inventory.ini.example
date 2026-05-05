@@ -1,3 +1,0 @@
-# ansible/inventory.ini.example
-[mcservers]
-mc1 ansible_host=YOUR_VPS_IP ansible_user=plato ansible_python_interpreter=/usr/bin/python3

@@ -1,0 +1,6 @@
+[mcservers]
+mc1 ansible_host=YOUR_SERVER_IP ansible_user=YOUR_SSH_USER ansible_python_interpreter=/usr/bin/python3
+
+[mcservers:vars]
+django_allowed_hosts=YOUR_SERVER_IP,YOUR_DOMAIN
+django_debug=false
