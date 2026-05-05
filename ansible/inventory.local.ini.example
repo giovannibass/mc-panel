@@ -1,0 +1,6 @@
+[mcservers]
+mc1 ansible_connection=local ansible_python_interpreter=/usr/bin/python3
+
+[mcservers:vars]
+django_allowed_hosts=127.0.0.1,localhost
+django_debug=false

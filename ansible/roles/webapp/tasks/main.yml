@@ -31,6 +31,40 @@
     requirements: "{{ webapp_dir }}/requirements.txt"
     virtualenv: "{{ webapp_venv_dir }}"
 
+- name: Ensure mc-panel secret key exists
+  ansible.builtin.stat:
+    path: /etc/mc-panel-secret-key
+  register: mc_panel_secret_key_file
+ 
+- name: Generate mc-panel Django secret key when missing or empty
+  ansible.builtin.set_fact:
+    generated_django_secret_key: "{{ lookup('ansible.builtin.pipe', 'python3 -c \"import secrets; print(secrets.token_urlsafe(50))\"') }}"
+  when: >
+    not mc_panel_secret_key_file.stat.exists
+    or mc_panel_secret_key_file.stat.size | default(0) | int == 0
+  no_log: true
+
+- name: Save generated mc-panel secret key
+  ansible.builtin.copy:
+    dest: /etc/mc-panel-secret-key
+    owner: root
+    group: root
+    mode: "0600"
+    content: "{{ generated_django_secret_key }}\n"
+  when: generated_django_secret_key is defined
+  no_log: true
+
+- name: Read mc-panel secret key
+  ansible.builtin.slurp:
+    src: /etc/mc-panel-secret-key
+  register: mc_panel_secret_key
+  no_log: true
+
+- name: Set mc-panel secret key fact
+  ansible.builtin.set_fact:
+    mc_panel_secret_key_value: "{{ mc_panel_secret_key.content | b64decode | trim }}"
+  no_log: true
+
 - name: Deploy mc-panel environment file
   ansible.builtin.copy:
     dest: /etc/mc-panel.env
@@ -38,7 +72,9 @@
     group: root
     mode: "0600"
     content: |
-      DJANGO_SECRET_KEY={{ django_secret_key }}
+      DJANGO_SECRET_KEY={{ mc_panel_secret_key_value }}
+      DJANGO_DEBUG={{ django_debug | default(false) | ternary('True', 'False') }}
+      DJANGO_ALLOWED_HOTS={{ django_allowed_hosts | default('127.0.0.1,localhost') }}
   no_log: true
   notify: Restart mc-panel
 
