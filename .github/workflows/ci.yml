@@ -10,6 +10,11 @@ jobs:
   django-ci:
     runs-on: ubuntu-latest
 
+    env:
+      DJANGO_SECRET_KEY: "ci-only-secret-key-not-for-production"
+      DJANGO_DEBUG: "True"
+      DJANGO_ALLOWED_HOSTS: "127.0.0.1,localhost"
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
