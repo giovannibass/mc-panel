@@ -2,6 +2,9 @@ services:
   mc_java:
     image: "{{ minecraft_image }}"
     container_name: "{{ minecraft_container_name }}"
+    labels:
+      - "mc.platform=true"
+      - "mc.type=java"
     ports:
       - "{{ minecraft_bind_address }}:25565:25565"
     environment:
