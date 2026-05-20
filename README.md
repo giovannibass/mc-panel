@@ -1,224 +1,58 @@
 # mc-panel
 
-`mc-panel` is a Linux admin/devops project for hosting and managing a Minecraft server through a web dashboard.
+`mc-panel` is a Linux-hosted Minecraft control panel that can be deployed with Ansible and managed through Django, Docker, Ansible, Nginx, Gunicorn, and systemd.
 
-The project uses:
-
-- **Ansible** to provision the server
-- **Docker** for the Minecraft server, monitoring tools, 
-- **Django + Gunicorn** to run the web dashboard
-
-Once the setup is complete, you can use the web dashboard to view and manage the Minecraft server container.
+Once the setup is complete, you can use the web dashboard to view and manage your own Minecraft server container.
 
 ---
 
-# Rocky Linux 9 VM Setup Guide
+# Quick Start
 
-This guide explains how to set up `mc-panel` on a fresh Rocky Linux 9 VM. This setup also assumes you are running Ansible **inside the same VM** that you want to configure, but changes can be made to provision this to a remote server.
+For full setup instructions, see [Setup Guide](docs/setup.md).
 
-After setup, the dashboard should be available at:
+1. Clone the repository.
+2. Configure the Ansible inventory file.
+3. Run the Ansible playbook.
+4. Open the dashboard in a browser.
 
-```text
-http://127.0.0.1:8000
-```
+# Architecture
 
----
+Basic overview of how each layer interacts with the next. Turning on/off the Minecraft server in the web browser will go through each of these steps before reaching the container itself.
 
-## 1. Install required packages
+**User Browser -> Nginx Reverse Proxy -> Gunicorn / Django App -> Docker Engine -> Minecraft Container**
 
-Log into the Rocky 9 VM and install the required system packages:
+Ansible provisions the server.
+Prometheus/Grafana monitor the system.
+GitHub Actions handles CI/deploy checks.
 
-```bash
-sudo dnf install -y git epel-release python3-pip python3.12 python3.12-pip
-sudo dnf install -y pipx
-```
+# Documentation
 
----
+- [Setup Guide](docs/setup.md)
+- [Case Study](docs/case-study.md)
+- [Architecture](docs/architecture.md)
+- [Troubleshooting](docs/troubleshooting.md)
 
-## 2. Install Ansible Core
+# Skills Demonstrated
 
-Install Ansible Core using Python 3.12:
+- Linux server administration on Rocky Linux
+- systemd service management
+- Nginx reverse proxy configuration
+- Gunicorn deployment for a Django application
+- Docker container management
+- Ansible automation and repeatable provisioning
+- GitHub Actions CI/deployment workflow
+- Prometheus and Grafana monitoring
+- Firewall and service exposure awareness
+- Troubleshooting real deployment issues
 
-```bash
-pipx install --python python3.12 ansible-core==2.20.3
-```
+# Known Limitations
 
-Verify the Ansible version:
+- Only tested with Rocky 9
+- Only allows control of one server
+- Setup instructions do not explain remote setup, although that is possible
 
-```bash
-ansible --version
-```
-
-You should see:
-
-```text
-ansible [core 2.20.3]
-```
-
----
-
-## 3. Clone the repository
-
-```bash
-mkdir -p ~/project
-cd ~/project
-git clone https://github.com/giovannibass/mc-panel.git
-cd mc-panel/ansible
-```
-
----
-
-## 4. Install required Ansible collections
-
-Run this command from inside the `mc-panel/ansible` directory:
-
-```bash
-ansible-galaxy collection install -r collections/requirements.yml -p ./collections --force
-```
-
-This installs the required Ansible collections that are going to be used by the playbook.
-
----
-
-## 5. Inventory file
-
-Copy the local inventory example:
-
-```bash
-cp inventory.local.ini.example inventory.ini
-```
-
-Open the file:
-
-```bash
-vim inventory.ini
-```
-
-For a local Rocky 9 VM test, the file should look similar to this:
-
-```ini
-[mcservers]
-mc1 ansible_connection=local ansible_python_interpreter=/usr/bin/python3
-
-[mcservers:vars]
-django_allowed_hosts=127.0.0.1,localhost
-django_debug=false
-```
-
-Everything can be left as is. For those you want to provision this to a remote server there is a `inventory.remote.ini.example` template available as well. Save and exit the file.
-
----
-
-## 6. Test Ansible connectivity
-
-```bash
-ansible -i inventory.ini mcservers -m ping
-```
-Should return a success.
-
----
-
-## 7. Run the Ansible playbook
-
-Run the live playbook:
-
-```bash
-ansible-playbook -i inventory.ini site.yml -K
-```
-
-Enter your sudo password when prompted. It will ask for a BECOME password, but you will still use your sudo password. It's at this point that everything will install.
-
----
-
-## Important note about `--check`
-
-Please don't use `--check` to do a dry run for the playbook. The dry run will likely fail because because there's a task that tries to install Docker packages and it can't do that because a Docker repository can't be created in check mode. Will adjust the playbooks so `--check` can be ran in the future.
-
----
-
-## 8. Add your user to the Docker group
-
-After the playbook installs Docker, add your current user to the Docker group. This will let the user run Docker commands without being prompted for the sudo password.
-
-```bash
-sudo usermod -aG docker "$(whoami)"
-newgrp docker
-```
-
-Confirm that your user can access Docker without using sudo.
-
-```bash
-docker ps
-```
-
----
-
-## 9. Fix the systemd service user and group
-
-The `mc-panel` systemd service needs run as a valid user and group.
-
-Edit the service file:
-
-```bash
-sudo vim /etc/systemd/system/mc-panel.service
-```
-
-Find the lines that look like this:
-
-```ini
-User=plato
-Group=plato
-```
-
-Change `plato` so it matches the user and group you want to run the web app as.
-
-For this local VM setup, you can use your current user.
-
-For example, if your user is `gio` and your group is `gio`, use:
-
-```ini
-User=gio
-Group=gio
-```
-
----
-
-## 10. Reload systemd and restart mc-panel
-
-After changing the service file, reload systemd:
-
-```bash
-sudo systemctl daemon-reload
-```
-
-Restart the service:
-
-```bash
-sudo systemctl restart mc-panel
-```
-
-Check the service status:
-
-```bash
-sudo systemctl status mc-panel
-```
-
-The service should show:
-
-```text
-active (running)
-```
-
----
-
-## 11. Open the dashboard
-
-The Django web app runs on port `8000`.
-
-Open this in your browser:
-
-```text
-http://127.0.0.1:8000
-```
-
-The container will already be running by default. You can open up minecraft and join the server under the IP `127.0.0.1:25565`.
+# Future Improvements
+- Completed documentation including detailed overview of the architecture involved, troubleshooting guide, and improving the monitoring dashboards.
+- Support multiple Minecraft servers.
+- Better error handling for dashboard.
+- Include HTTPS by default.
