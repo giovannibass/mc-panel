@@ -28,6 +28,9 @@ GitHub Actions handles CI/deploy checks.
 # Documentation
 
 - [Setup Guide](docs/setup.md)
+- [Case Study](docs/case-study.md)
+- [Architecture](docs/architecture.md)
+- [Troubleshooting](docs/troubleshooting.md)
 
 # Skills Demonstrated
 
