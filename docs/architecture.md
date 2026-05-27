@@ -1,16 +1,57 @@
 # Architecture
-Everything starts with the user interacting with the Django web app through a browser. Django is able to communicate with Docker which is how the Minecaft container is able to start/stop. Below is a simple arrow chart that demonstrates how each layer interacts with the next to get the desired result.
 
-User Browser -> Gunicorn / Django App -> Docker Engine -> Minecraft Container
+## Overview
 
-Outside the processes involved for maintaining the app, they are other pieces that help with making administration of the map much easier. All of these are broken down in the next section.
+## Request Flow
+What happens when someone clicks a button in the dashboard?
 
-## Ansible
+## Component Responsibilities
 
-## Django Webapp
+What each component does
 
-## Prometheus/Grafana
+Browser
+Nginx
+Ansible
+GitHub Actions
+Docker Engine
+Minecraft Server container
+Prometheus
+Grafana
+Django
+Gunicorn
+systemd
 
-## CI/CD
+## Container Management Flow
 
-## MediaWiki
+How does Django control Minecraft container?
+
+Docker runs the game, Django runs the web control panel. How do we get the two to work together?
+
+## Ansible Provisioning Flow
+
+How is the playbook organized? The purpose of Ansible in the project is to make server setup easy and repeatable.
+
+## CI/CD Flow
+
+GitHub Actions verifies and helps manage changes before they are deployed.
+
+## Monitoring Architecture
+
+The Prometheus/Grafana stack work together to monitor the status of the Linux environment as well as the container environment.
+
+Prometheus
+Grafana
+nodeExporter
+cAdvisor
+
+## Network and Service Exposure
+
+Nginx acts as the public facing web service.
+
+Should list here all the publicly exposed ports.
+
+## Security Boundaries
+
+Think about how the components you chose led to a more secure environment.
+
+## Architecture Decisions
