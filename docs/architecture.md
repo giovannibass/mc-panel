@@ -1,35 +1,27 @@
 # Architecture
 
-## Overview
-
 ## Request Flow
 What happens when someone clicks a button in the dashboard?
 
-The user clicks a button on the web dashboard. This interacts with the Nginx proxy, which will forward the request to Django. The action of the container starting is triggered when a certain URL is entered (whih is triggered by the button). [mc-panel/dashboard/urls.py](mc-panel/dashboard/urls.py) controls what Python function runs after requesting at URL. For the container starting, it's going to request that the `server_start` function is ran which starts the container. A similar process is followed when stopping the container.
+The user clicks a button on the web dashboard. This interacts with the Nginx proxy, which will forward the request to Gunicorn. Gunicorn will start work processes that load the Django app. The action of the container starting is triggered when a certain URL is entered (whih is triggered by the button). [mc-panel/dashboard/urls.py](mc-panel/dashboard/urls.py) controls what Python function runs after requesting at URL. For the container starting, it's going to request the `server_start` function. Docker SDK is used to manager the Docker Engine through Python. Django uses Docker SDK to ask Docker Engine to start the minecraft container.
 
 ## Component Responsibilities
 
 What each component does
 
-Browser | Serves as web control panel that so the user can turn the Minecraft container on/off.
-Nginx | Proxy that sits in front of the webapp. Any interaction the user makes goes here first.
-Ansible | Tool for provisioning the server with the necessary packages/configurations for this project.
-GitHub Actions | Automation tool that can run checks on code before it gets merged.
-Docker Engine | Runs the containers and interacts with other tools like Pyhton that can manage them.
-Minecraft Server container | The Minecraft server
-Prometheus | Queries data
-Grafana | Displays queried data from Prometheus on convenient dashboards
-Django | Framework used for the control panel webapp.
-Gunicorn | Complements Django by running Python code for the webapp
-systemd | 
-
-## Container Management Flow
-
-How does Django control Minecraft container?
-
-Docker runs the game, Django runs the web control panel. How do we get the two to work together?
-
-Gunicorn is what sits inbetween the http server and Docker.
+| Component | Responsibility |
+|---|---|
+| Browser | Provides the user interface for the control panel so the user can view and manage the Minecraft server container. |
+| Nginx | Acts as the reverse proxy in front of the web application. User requests reach Nginx first before being forwarded to the app. |
+| Gunicorn | Runs the Django application as a production-style Python application server. |
+| Django | Provides the web framework, dashboard views, and application logic for the control panel. |
+| Docker Engine | Runs and manages the containers. The Django app can communicate with Docker to inspect or manage the Minecraft server container. |
+| Minecraft Server Container | Runs the actual Minecraft server process. |
+| systemd | Manages the Django/Gunicorn web application as a Linux service. |
+| Ansible | Provisions the server with the required packages, configuration files, services, and application setup. |
+| GitHub Actions | Runs automated checks on code before changes are merged or deployed. |
+| Prometheus | Collects and queries metrics from the host and container environment. |
+| Grafana | Displays Prometheus metrics in dashboards for easier monitoring and troubleshooting. |
 
 ## Ansible Provisioning Flow
 
@@ -60,28 +52,3 @@ Deploys the Prometheus/Grafana monitoring stack. Prometheus, Grafana, node-expor
 ### security
 
 Installs security packages, fail2ban being one of them.
-
-## CI/CD Flow
-
-GitHub Actions verifies and helps manage changes before they are deployed.
-
-## Monitoring Architecture
-
-The Prometheus/Grafana stack work together to monitor the status of the Linux environment as well as the container environment.
-
-Prometheus
-Grafana
-nodeExporter
-cAdvisor
-
-## Network and Service Exposure
-
-Nginx acts as the public facing web service.
-
-Should list here all the publicly exposed ports.
-
-## Security Boundaries
-
-Think about how the components you chose led to a more secure environment.
-
-## Architecture Decisions
