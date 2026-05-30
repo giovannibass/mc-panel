@@ -33,7 +33,11 @@ One of my goals was to also create a wiki on the VPS. For this I made a compose 
 Eventually I decided to pause this for now and revisit as an add-on. I still had my own personal documentation which was important and I was more excited to learn something new. Now that the project is finished I can go back and add the Wiki setup in the repo. Some of the documentation from the wiki will be included here, [Architecture](docs/architecture.md), and [Troubleshooting](docs/troubleshooting.md). 
 
 # Python Web Interface
--
+Setting up the web app got me deep outside my comfort zone. I'm by no means a web developer and my focus was on getting something functional, not pretty. First decision was to decide which web framework to use. Did some research and saw that Flask, Django, and FastAPI were popular choices. I chose Django because it had its own built-in authentication system. I didn't take advantage of that during this project, but at the time I was thinking about potential for making user accounts.
+
+Although I was using a VPS, most of the coding was done on my local machine. Because of that I had to take more caution is creating a decent dev environment. That included a project folder that acted as my repository, a Python veirtual environment, and Django of course. Local tests went pretty smooth. Was able to get to a landing page by simply following the documentation.
+
+Gunicorn wasn't actually installed until I started thinking about how my CI/CD process would go. The webapp needed to be something that could be easily reproduced with Ansible. At first I was going to look at using containers, but I eventually decided that I would make the Django app a service. The main reason for doing this is wanting a systemd service I can control for CD so logs can be centralized. I wanted to try something different and show my understanding of how systemd services work for this project.
 
 # CI/CD
 The general flow is someone pushes code, CI checks it, and then once it passes it would be ready for manual deployment. I had worked with git and GitHub in the past when cloning other repositories, but not to this extent.
